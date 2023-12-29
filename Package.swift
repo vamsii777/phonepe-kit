@@ -4,25 +4,22 @@ import PackageDescription
 let package = Package(
     name: "PhonePeKit",
     platforms: [
-       .macOS(.v13)
+        .macOS(.v13)
+    ],
+    products: [
+        .library(name: "PhonePeKit", targets: ["PhonePeKit"])
     ],
     dependencies: [
-        // 💧 A server-side Swift web framework.
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.89.0"),
+        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.1.0"),
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "3.1.0")
     ],
     targets: [
-        .executableTarget(
-            name: "App",
-            dependencies: [
-                .product(name: "Vapor", package: "vapor"),
-            ]
-        ),
-        .testTarget(name: "AppTests", dependencies: [
-            .target(name: "App"),
-            .product(name: "XCTVapor", package: "vapor"),
-
-            // Workaround for https://github.com/apple/swift-package-manager/issues/6940
-            .product(name: "Vapor", package: "vapor"),
+        .target(name: "PhonePeKit", dependencies: [
+            .product(name: "AsyncHTTPClient", package: "async-http-client"),
+            .product(name: "Crypto", package: "swift-crypto"),
+        ]),
+        .testTarget(name: "PhonePeKitTests", dependencies: [
+            .target(name: "PhonePeKit")
         ])
     ]
 )
