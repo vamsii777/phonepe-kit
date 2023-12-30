@@ -9,17 +9,12 @@ import Foundation
 
 public final class PhonePeError: Codable, Error {
     public var success: Bool?
-    public var code: String? // Make optional
-    public var message: String? // Make optional
-    public var data: Data? // Update the type as needed
+    public var code: PhonePeErrorCode? // Changed to enum type
+    public var message: String?
 
-    public init(success: Bool?, code: String? = nil, message: String? = nil, data: Data? = nil) {
+    public init(success: Bool?, code: PhonePeErrorCode? = nil, message: String? = nil) {
         self.success = success
         self.code = code
         self.message = message
-        self.data = data
     }
 }
-
-// Usage example
-// let error = PhonePeError(success: false, code: "some_error_code", message: "Error message", data: nil)

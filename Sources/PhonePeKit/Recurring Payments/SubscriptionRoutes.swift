@@ -10,7 +10,7 @@ import Foundation
 import AsyncHTTPClient
 
 public protocol SubscriptionRoutes: PhonePeAPIRoute {
-    func createSubscription(request: CreateUserSubscriptionRequest) async throws -> CreateUserSubscriptionResponse
+    func createSubscription(request: SubscriptionRequest) async throws -> PhonePeResponse<SubscriptionResponse>
 }
 
 public struct PhonePeSubscriptionRoutes: SubscriptionRoutes {
@@ -24,10 +24,10 @@ public struct PhonePeSubscriptionRoutes: SubscriptionRoutes {
         self.baseUrl = baseUrl
     }
     
-    public func createSubscription(request: CreateUserSubscriptionRequest) async throws -> CreateUserSubscriptionResponse {
+    public func createSubscription(request: SubscriptionRequest) async throws -> PhonePeResponse<SubscriptionResponse> {
         let path = "/v3/recurring/subscription/create"
-
-        let requestBody = try constructRequestBody(request: request)
+        
+        let requestBody = try Request.constructRequestBody(request: request)
         
         return try await apiHandler.send(
             method: .POST,
@@ -35,17 +35,6 @@ public struct PhonePeSubscriptionRoutes: SubscriptionRoutes {
             body: .data(requestBody),
             headers: headers
         )
-    }
-
-    private func constructRequestBody(request: CreateUserSubscriptionRequest) throws -> Data {
-        do {
-            let jsonData = try JSONEncoder().encode(request)
-            let base64EncodedRequest = jsonData.base64EncodedString()
-            let requestDictionary = ["request": base64EncodedRequest]
-            return try JSONEncoder().encode(requestDictionary)
-        } catch {
-            throw SubscriptionError.jsonEncodingFailed
-        }
     }
 }
 

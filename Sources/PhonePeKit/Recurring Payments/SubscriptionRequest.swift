@@ -1,5 +1,5 @@
 //
-//  CreateUserSubscriptionRequest.swift
+//  SubscriptionRequest.swift
 //
 //
 //  Created by Vamsi Madduluri on 29/12/23.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct CreateUserSubscriptionRequest: Codable {
+public struct SubscriptionRequest: Codable {
     public var merchantId: String
     public var merchantSubscriptionId: String
     public var merchantUserId: String
