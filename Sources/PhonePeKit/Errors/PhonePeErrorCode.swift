@@ -18,4 +18,5 @@ public enum PhonePeErrorCode: String, Codable {
     case PAYMENT_PENDING = "PAYMENT_PENDING"
     case PAYMENT_DECLINED = "PAYMENT_DECLINED"
     case TIMED_OUT = "TIMED_OUT"
+    case INVALID_VPA = "INVALID_VPA"
 }

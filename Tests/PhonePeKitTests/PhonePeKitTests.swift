@@ -65,6 +65,14 @@ class PhonePeClientTests: XCTestCase {
         XCTAssertEqual(response.code, "PAYMENT_SUCCESS")
         // Further assertions based on expected response
     }
+
+    func testVPAValidate() async throws {
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        let request = VPAValidateRequest(vpa: "9999999999@ybl", merchantId: "PGTESTPAYUAT")
+        let response = try await phonePeClient.other.validateVPA(request: request)
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response.code, "SUCCESS")
+    }
     
     func test401Request() async throws {
         let phonePeClient = createClient(saltKey: "14fa5465-f8a7-443f-8477-f986b8fcfde9")
@@ -84,9 +92,9 @@ class PhonePeClientTests: XCTestCase {
     }
     
     func testCreateSubscription() async throws {
-        let phonePeClient = createClient(saltKey: "14fa5465-f8a7-443f-8477-f986b8fcfde9")
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
         let request = SubscriptionRequest(
-            merchantId: "PGTESTPAYUAT77",
+            merchantId: "PGTESTPAYUAT",
             merchantSubscriptionId: "MSUB123456789012345",
             merchantUserId: "MU123456789",
             authWorkflowType: .pennyDrop,  // or .pennyDrop

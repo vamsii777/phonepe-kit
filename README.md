@@ -82,7 +82,7 @@ do {
 
 ### Others
 
-- [ ] VPA Validate (⚠️ In Progress)
+- [x] VPA Validate
 - [ ] Payment Options (⚠️ In Progress)
 - [ ] Health Status (⚠️ In Progress)
 
