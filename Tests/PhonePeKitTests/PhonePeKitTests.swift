@@ -132,4 +132,12 @@ class PhonePeClientTests: XCTestCase {
         XCTAssertNotNil(response)
         XCTAssertEqual(response.success, true)
     }
+    
+    // TODO: FIX TESTCASE
+    func testHealthStatus() async throws {
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        let response = try await phonePeClient.healthcheck.status(merchantId: "PGTESTPAYUAT")
+        print(response)
+        XCTAssertNotNil(response.overallHealth)
+    }
 }

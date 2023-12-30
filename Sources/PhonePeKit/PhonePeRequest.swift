@@ -13,7 +13,7 @@ import AsyncHTTPClient
 
 internal let PhonePeAPIBase = "https://api.phonepe.com/apis/hermes"
 internal let PhonePeAPISandbox = "https://api-preprod.phonepe.com/apis/pg-sandbox"
-
+internal let PhonePeHealthStatusBase: String = "https://uptime.phonepe.com/v1"
 public enum Environment {
     case production
     case sandbox
@@ -26,6 +26,11 @@ public enum Environment {
             return PhonePeAPISandbox
         }
     }
+
+    var healthbaseUrl: String {
+        return PhonePeHealthStatusBase
+    }
+    
 }
 
 extension HTTPClientRequest.Body {

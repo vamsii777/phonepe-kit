@@ -76,32 +76,32 @@ do {
 
 ### PG Custom Checkout API
 
-- [ ] PAY
-- [ ] Check Status
-- [ ] Refund
+- [ ] PAY (🚧 Under Development)
+- [ ] Check Status (🚧 Under Development)
+- [ ] Refund (🚧 Under Development)
 
 ### Others
 
 - [x] VPA Validate
-- [ ] Payment Options (⚠️ In Progress)
-- [ ] Health Status (⚠️ In Progress)
+- [ ] Payment Options
+- [x] Health Status (⚠️ Known Issues)
 
 ### Recurring Payments
 
 - [x] Create User Subscription
 - [x] User Subscription Status
-- [ ] Fetch All Subscriptions
-- [ ] Verify VPA
-- [ ] Submit Auth Request
-- [ ] Auth Request Status
-- [ ] Recurring INIT
-- [ ] Recurring Debit Execute
-- [ ] Recurring Debit Execute Status
-- [ ] Cancel Subscription
-- [ ] Revoke Subscription
-- [ ] Pause/UnPause Subscription
-- [ ] Cancel Subscription
-- [ ] Revoke Subscription
+- [ ] Fetch All Subscriptions (🚧 Under Development)
+- [ ] Verify VPA (🚧 Under Development)
+- [ ] Submit Auth Request (🚧 Under Development)
+- [ ] Auth Request Status (🚧 Under Development)
+- [ ] Recurring INIT (🚧 Under Development)
+- [ ] Recurring Debit Execute (🚧 Under Development)
+- [ ] Recurring Debit Execute Status (🚧 Under Development)
+- [ ] Cancel Subscription (🚧 Under Development)
+- [ ] Revoke Subscription (🚧 Under Development)
+- [ ] Pause/UnPause Subscription (🚧 Under Development)
+- [ ] Cancel Subscription (🚧 Under Development)
+- [ ] Revoke Subscription (🚧 Under Development)
 
 ## License
 PhonePeKit is available under the MIT license. See the [LICENSE](LICENSE) file for more info.
