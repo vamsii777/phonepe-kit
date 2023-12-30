@@ -58,7 +58,7 @@ struct PhonePeAPIHandler {
     func send<T: Codable>(method: HTTPMethod,
                           path: String,
                           query: String = "",
-                          body: HTTPClientRequest.Body = .bytes(.init(string: "")),
+                          body: HTTPClientRequest.Body? = nil,
                           headers: HTTPHeaders) async throws -> T {
         var _headers: HTTPHeaders = ["Content-Type": "application/json",
                                      "Accept": "application/json"]
@@ -77,6 +77,5 @@ struct PhonePeAPIHandler {
         
         return try decoder.decode(T.self, from: Data(buffer: responseData))
     }
-    
     
 }

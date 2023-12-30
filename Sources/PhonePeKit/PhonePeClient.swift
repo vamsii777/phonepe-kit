@@ -12,6 +12,7 @@ public final class PhonePeClient {
 
     public var subscriptions: PhonePeSubscriptionRoutes
     public var payments: PhonePePayRoutes
+    public var checkstatus: PhonePeCheckStatusRoutes
     
     var handler: PhonePeAPIHandler
 
@@ -20,6 +21,7 @@ public final class PhonePeClient {
     
         subscriptions = PhonePeSubscriptionRoutes(apiHandler: handler, baseUrl: environment.baseUrl)
         payments = PhonePePayRoutes(apiHandler: handler, baseUrl: environment.baseUrl)
+        checkstatus = PhonePeCheckStatusRoutes(apiHandler: handler, baseUrl: environment.baseUrl)
         
     }
 }

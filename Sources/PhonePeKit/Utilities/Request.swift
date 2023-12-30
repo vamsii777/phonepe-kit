@@ -37,7 +37,16 @@ class Request {
         return hashed.compactMap { String(format: "%02x", $0) }.joined()
     }
     
-    static func generateSignature(path: String, body: HTTPClientRequest.Body, saltKey: String, saltIndex: String) async throws -> String {
+    static func generateSignature(path: String, body: HTTPClientRequest.Body?, saltKey: String, saltIndex: String) async throws -> String {
+        if body == nil {
+            let combinedString = path + saltKey
+            return Request.calculateSHA256(inputString: combinedString) + "###" + saltIndex
+        } else {
+            return try await generateSignatureWithBody(path: path, body: body!, saltKey: saltKey, saltIndex: saltIndex)
+        }
+    }
+
+    static func generateSignatureWithBody(path: String, body: HTTPClientRequest.Body, saltKey: String, saltIndex: String) async throws -> String {
         let bodyDataString = try await extractBodyString(body: body)
         let base64EncodedRequest = try Request.parseBase64StringFromJSON(jsonString: bodyDataString)
         let combinedString = base64EncodedRequest + path + saltKey

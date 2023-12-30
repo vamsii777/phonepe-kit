@@ -54,6 +54,20 @@ class PhonePeClientTests: XCTestCase {
         XCTAssertEqual(response.code, "PAYMENT_INITIATED")
     }
     
+    func testCheckTransactionStatus() async throws {
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        
+        // Use sample merchantId and merchantTransactionId for testing
+        let merchantId = "PGTESTPAYUAT"
+        let merchantTransactionId = "7qfRVFLbjL8Le8vMKAUieq"
+        
+        let response = try await phonePeClient.checkstatus.checkTransactionStatus(merchantId: merchantId, merchantTransactionId: merchantTransactionId)
+        print(response)
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response.code, "PAYMENT_SUCCESS")
+        // Further assertions based on expected response
+    }
+    
     func test401Request() async throws {
         let phonePeClient = createClient(saltKey: "14fa5465-f8a7-443f-8477-f986b8fcfde9")
         let request = PayRequest(

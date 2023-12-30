@@ -70,9 +70,9 @@ do {
 
 ### PG Standard Checkout API
 
-- [ ] PAY
-- [ ] Check Status
-- [ ] Refund
+- [x] PAY 
+- [x] Check Status 
+- [ ] Refund (⚠️ In Progress)
 
 ### PG Custom Checkout API
 
@@ -82,14 +82,14 @@ do {
 
 ### Others
 
-- [ ] VPA Validate
-- [ ] Payment Options
-- [ ] Health Status
+- [ ] VPA Validate (⚠️ In Progress)
+- [ ] Payment Options (⚠️ In Progress)
+- [ ] Health Status (⚠️ In Progress)
 
 ### Recurring Payments
 
-- [x] Create User Subscription (⚠️ In Progress)
-- [ ] User Subscription Status
+- [x] Create User Subscription
+- [ ] User Subscription Status (⚠️ In Progress)
 - [ ] Fetch All Subscriptions
 - [ ] Verify VPA
 - [ ] Submit Auth Request
