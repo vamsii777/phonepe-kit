@@ -34,6 +34,21 @@ class PhonePeClientTests: XCTestCase {
         XCTAssertEqual(response.success, true)
         XCTAssertEqual(response.code, "PAYMENT_INITIATED")
     }
+
+    func testRefundPayment() async throws {
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        let request = RefundRequest(
+            merchantId: "PGTESTPAYUAT",
+            merchantUserId: "User123",
+            originalTransactionId: "OD620471739210623",
+            merchantTransactionId: "ROD620471739210623",
+            amount: 1000,
+            callbackUrl: "https://webhook.site/callback-url"
+        )
+        let response = try await phonePeClient.payments.refundPayment(request: request)
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response.success, true)
+    }
     
     func testInitiatePaymentRedirect() async throws {
         let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")

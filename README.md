@@ -72,7 +72,7 @@ do {
 
 - [x] PAY 
 - [x] Check Status 
-- [ ] Refund (⚠️ In Progress)
+- [x] Refund
 
 ### PG Custom Checkout API
 
