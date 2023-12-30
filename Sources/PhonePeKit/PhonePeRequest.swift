@@ -12,7 +12,7 @@ import NIOFoundationCompat
 import NIOHTTP1
 import AsyncHTTPClient
 
-internal let PhonePeAPIBase = "https://api.phonepe.com/apis"
+internal let PhonePeAPIBase = "https://api.phonepe.com/apis/hermes"
 internal let PhonePeAPISandbox = "https://api-preprod.phonepe.com/apis/pg-sandbox"
 
 public enum Environment {
