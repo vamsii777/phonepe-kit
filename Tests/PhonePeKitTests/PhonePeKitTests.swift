@@ -124,6 +124,12 @@ class PhonePeClientTests: XCTestCase {
         let response = try await phonePeClient.subscriptions.createSubscription(request: request)
         XCTAssertNotNil(response)
         XCTAssertEqual(response.success, true)
+    }
+
+    func testUserSubscriptionStatus() async throws {
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        let response = try await phonePeClient.subscriptions.userSubscriptionStatus(merchantId: "PGTESTPAYUAT", merchantSubscriptionId: "MSUB123456789012345")
         XCTAssertNotNil(response)
+        XCTAssertEqual(response.success, true)
     }
 }

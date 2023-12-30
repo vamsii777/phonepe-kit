@@ -89,7 +89,7 @@ do {
 ### Recurring Payments
 
 - [x] Create User Subscription
-- [ ] User Subscription Status (⚠️ In Progress)
+- [x] User Subscription Status
 - [ ] Fetch All Subscriptions
 - [ ] Verify VPA
 - [ ] Submit Auth Request
