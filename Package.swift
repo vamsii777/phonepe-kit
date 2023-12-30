@@ -10,7 +10,7 @@ let package = Package(
         .library(name: "PhonePeKit", targets: ["PhonePeKit"])
     ],
     dependencies: [
-        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.1.0"),
+        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.20.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.1.0")
     ],
     targets: [

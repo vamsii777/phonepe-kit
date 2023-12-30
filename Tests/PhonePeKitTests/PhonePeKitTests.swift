@@ -48,7 +48,6 @@ class PhonePeClientTests: XCTestCase {
             mobileNumber: "9999999999"
         )
         let response = try await phonePeClient.payments.initiatePayment(request: request)
-        print(response)
         XCTAssertNotNil(response)
         XCTAssertEqual(response.success, true)
         XCTAssertEqual(response.code, "PAYMENT_INITIATED")
@@ -62,7 +61,6 @@ class PhonePeClientTests: XCTestCase {
         let merchantTransactionId = "7qfRVFLbjL8Le8vMKAUieq"
         
         let response = try await phonePeClient.checkstatus.checkTransactionStatus(merchantId: merchantId, merchantTransactionId: merchantTransactionId)
-        print(response)
         XCTAssertNotNil(response)
         XCTAssertEqual(response.code, "PAYMENT_SUCCESS")
         // Further assertions based on expected response
