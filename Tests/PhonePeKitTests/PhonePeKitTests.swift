@@ -147,6 +147,13 @@ class PhonePeClientTests: XCTestCase {
         XCTAssertNotNil(response)
         XCTAssertEqual(response.code, "SUCCESS")
     }
+
+    func testVerifyValidateVPA() async throws {
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399", environment: .sandbox)
+        let response = try await phonePeClient.subscriptions.verifyVPA(merchantId: "PGTESTPAYUAT", vpa: "9999999999@ybl")
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response.code, "SUCCESS")
+    }
     
     // USE PRODUCTION KEY & SALT
     // Phonepe does not have an uptime test URL.

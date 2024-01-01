@@ -10,4 +10,5 @@ import Foundation
 public struct VPAValidateResponse: Codable {
     let name: String
     let vpa: String
+    let exists: Bool?
 }

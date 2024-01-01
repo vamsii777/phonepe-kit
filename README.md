@@ -91,7 +91,7 @@ do {
 - [x] Create User Subscription
 - [x] User Subscription Status
 - [x] Fetch All Subscriptions
-- [ ] Verify VPA (🚧 Under Development)
+- [x] Verify VPA 
 - [ ] Submit Auth Request (🚧 Under Development)
 - [ ] Auth Request Status (🚧 Under Development)
 - [ ] Recurring INIT (🚧 Under Development)
