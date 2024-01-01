@@ -13,10 +13,12 @@ import AsyncHTTPClient
 
 internal let PhonePeAPIBase = "https://api.phonepe.com/apis/hermes"
 internal let PhonePeAPISandbox = "https://api-preprod.phonepe.com/apis/pg-sandbox"
-internal let PhonePeHealthStatusBase: String = "https://uptime.phonepe.com/v1"
+internal let PhonePeHealthStatusBase: String = "https://uptime.phonepe.com"
+
 public enum Environment {
     case production
     case sandbox
+    case health
     
     var baseUrl: String {
         switch self {
@@ -24,6 +26,8 @@ public enum Environment {
             return PhonePeAPIBase
         case .sandbox:
             return PhonePeAPISandbox
+        case .health:
+            return PhonePeHealthStatusBase
         }
     }
 

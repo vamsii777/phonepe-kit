@@ -13,12 +13,12 @@ class PhonePeClientTests: XCTestCase {
         httpClient = HTTPClient(eventLoopGroupProvider: .singleton)
     }
     
-    func createClient(saltKey: String) -> PhonePeClient {
-        return PhonePeClient(httpClient: httpClient, saltKey: saltKey, saltIndex: "1", environment: .sandbox)
+    func createClient(saltKey: String, environment: Environment) -> PhonePeClient {
+        return PhonePeClient(httpClient: httpClient, saltKey: saltKey, saltIndex: "1", environment: environment)
     }
     
     func testInitiatePayment() async throws {
-        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399", environment: .sandbox)
         let request = PayRequest(
             merchantId: "PGTESTPAYUAT",
             merchantTransactionId: "MT7850590068188104",
@@ -36,7 +36,7 @@ class PhonePeClientTests: XCTestCase {
     }
 
     func testRefundPayment() async throws {
-        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399", environment: .sandbox)
         let request = RefundRequest(
             merchantId: "PGTESTPAYUAT",
             merchantUserId: "User123",
@@ -51,7 +51,7 @@ class PhonePeClientTests: XCTestCase {
     }
     
     func testInitiatePaymentRedirect() async throws {
-        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399", environment: .sandbox)
         let request = PayRequest(
             merchantId: "PGTESTPAYUAT",
             merchantTransactionId: "MT7850590068188104",
@@ -69,7 +69,7 @@ class PhonePeClientTests: XCTestCase {
     }
     
     func testCheckTransactionStatus() async throws {
-        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399", environment: .sandbox)
         
         // Use sample merchantId and merchantTransactionId for testing
         let merchantId = "PGTESTPAYUAT"
@@ -82,15 +82,23 @@ class PhonePeClientTests: XCTestCase {
     }
 
     func testVPAValidate() async throws {
-        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399", environment: .sandbox)
         let request = VPAValidateRequest(vpa: "9999999999@ybl", merchantId: "PGTESTPAYUAT")
         let response = try await phonePeClient.other.validateVPA(request: request)
         XCTAssertNotNil(response)
         XCTAssertEqual(response.code, "SUCCESS")
     }
     
+    func testPaymentOptions() async throws {
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399", environment: .sandbox)
+        let response = try await phonePeClient.other.paymentOptions(merchantId: "PGTESTPAYUAT")
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response.success, true)
+        XCTAssertEqual(response.code, "SUCCESS")
+    }
+    
     func test401Request() async throws {
-        let phonePeClient = createClient(saltKey: "14fa5465-f8a7-443f-8477-f986b8fcfde9")
+        let phonePeClient = createClient(saltKey: "14fa5465-f8a7-443f-8477-f986b8fcfde9", environment: .sandbox)
         let request = PayRequest(
             merchantId: "PGTESTPAYUAT",
             merchantTransactionId: "MT7850590068188104",
@@ -107,7 +115,7 @@ class PhonePeClientTests: XCTestCase {
     }
     
     func testCreateSubscription() async throws {
-        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399", environment: .sandbox)
         let request = SubscriptionRequest(
             merchantId: "PGTESTPAYUAT",
             merchantSubscriptionId: "MSUB123456789012345",
@@ -127,17 +135,17 @@ class PhonePeClientTests: XCTestCase {
     }
 
     func testUserSubscriptionStatus() async throws {
-        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399", environment: .sandbox)
         let response = try await phonePeClient.subscriptions.userSubscriptionStatus(merchantId: "PGTESTPAYUAT", merchantSubscriptionId: "MSUB123456789012345")
         XCTAssertNotNil(response)
         XCTAssertEqual(response.success, true)
     }
     
-    // TODO: FIX TESTCASE
-    func testHealthStatus() async throws {
-        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399")
-        let response = try await phonePeClient.healthcheck.status(merchantId: "PGTESTPAYUAT")
-        print(response)
-        XCTAssertNotNil(response.overallHealth)
+    // USE PRODUCTION KEY & SALT
+    // Phonepe doesn't has test url for the uptime
+    func healthStatus() async throws {
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399", environment: .health)
+            let response = try await phonePeClient.healthcheck.status(merchantId: "MSUB123456789012345")
+            XCTAssertNotNil(response)
     }
 }

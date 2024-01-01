@@ -83,8 +83,8 @@ do {
 ### Others
 
 - [x] VPA Validate
-- [ ] Payment Options
-- [x] Health Status (⚠️ Known Issues)
+- [x] Payment Options
+- [x] Health Status
 
 ### Recurring Payments
 

@@ -12,6 +12,7 @@ import AsyncHTTPClient
 
 public protocol OtherRoutes: PhonePeAPIRoute  {
     func validateVPA(request: VPAValidateRequest) async throws -> PhonePeResponse<VPAValidateResponse>
+    func paymentOptions(merchantId: String) async throws -> PhonePeResponse<PaymentOptionsResponse>
 }
 
 public struct PhonePeOtherRoutes: OtherRoutes {
@@ -32,6 +33,20 @@ public struct PhonePeOtherRoutes: OtherRoutes {
             path: path,
             body: .data(requestBody),
             headers: headers
+        )
+    }
+
+    public func paymentOptions(merchantId: String) async throws -> PhonePeResponse<PaymentOptionsResponse> {
+        let path = "/pg/v1/options/\(merchantId)"
+        
+        var requestHeaders = headers
+        requestHeaders.add(name: "X-MERCHANT-ID", value: merchantId)
+        requestHeaders.add(name: "merchantId", value: merchantId)
+        
+        return try await apiHandler.send(
+            method: .GET,
+            path: path,
+            headers: requestHeaders
         )
     }
 }
