@@ -12,6 +12,7 @@ import AsyncHTTPClient
 public protocol SubscriptionRoutes: PhonePeAPIRoute {
     func createSubscription(request: SubscriptionRequest) async throws -> PhonePeResponse<SubscriptionResponse>
     func userSubscriptionStatus(merchantId: String, merchantSubscriptionId: String) async throws -> PhonePeResponse<UserSubscriptionStatusResponse>
+    func fetchAllSubscriptions(merchantId: String, merchantUserId: String) async throws -> PhonePeResponse<AllSubscriptionsResponse>
 }
 
 public struct PhonePeSubscriptionRoutes: SubscriptionRoutes {
@@ -45,6 +46,21 @@ public struct PhonePeSubscriptionRoutes: SubscriptionRoutes {
         requestHeaders.add(name: "X-MERCHANT-ID", value: merchantId)
         requestHeaders.add(name: "merchantId", value: merchantId)
         requestHeaders.add(name: "merchantSubscriptionId", value: merchantSubscriptionId)
+        
+        return try await apiHandler.send(
+            method: .GET,
+            path: path,
+            headers: requestHeaders
+        )
+    }
+
+    public func fetchAllSubscriptions(merchantId: String, merchantUserId: String) async throws -> PhonePeResponse<AllSubscriptionsResponse> {
+        let path = "/v3/recurring/subscription/user/\(merchantId)/\(merchantUserId)/all"
+        
+        var requestHeaders = headers
+        requestHeaders.add(name: "X-MERCHANT-ID", value: merchantId)
+        requestHeaders.add(name: "merchantId", value: merchantId)
+        requestHeaders.add(name: "merchantUserId", value: merchantUserId)
         
         return try await apiHandler.send(
             method: .GET,

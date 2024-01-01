@@ -90,7 +90,7 @@ do {
 
 - [x] Create User Subscription
 - [x] User Subscription Status
-- [ ] Fetch All Subscriptions (🚧 Under Development)
+- [x] Fetch All Subscriptions
 - [ ] Verify VPA (🚧 Under Development)
 - [ ] Submit Auth Request (🚧 Under Development)
 - [ ] Auth Request Status (🚧 Under Development)
