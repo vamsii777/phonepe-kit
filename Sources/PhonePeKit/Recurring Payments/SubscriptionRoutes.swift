@@ -14,6 +14,7 @@ public protocol SubscriptionRoutes: PhonePeAPIRoute {
     func userSubscriptionStatus(merchantId: String, merchantSubscriptionId: String) async throws -> PhonePeResponse<UserSubscriptionStatusResponse>
     func fetchAllSubscriptions(merchantId: String, merchantUserId: String) async throws -> PhonePeResponse<AllSubscriptionsResponse>
     func verifyVPA(merchantId: String, vpa: String) async throws -> PhonePeResponse<VPAValidateResponse>
+    func authRequestStatus(merchantId: String, authRequestId: String) async throws -> PhonePeResponse<AuthRequestStatusResponse>
 }
 
 public struct PhonePeSubscriptionRoutes: SubscriptionRoutes {
@@ -77,6 +78,21 @@ public struct PhonePeSubscriptionRoutes: SubscriptionRoutes {
         requestHeaders.add(name: "X-MERCHANT-ID", value: merchantId)
         requestHeaders.add(name: "merchantId", value: merchantId)
         requestHeaders.add(name: "vpa", value: vpa)
+        
+        return try await apiHandler.send(
+            method: .GET,
+            path: path,
+            headers: requestHeaders
+        )
+    }
+
+    public func authRequestStatus(merchantId: String, authRequestId: String) async throws -> PhonePeResponse<AuthRequestStatusResponse> {
+        let path = "/v3/recurring/auth/status/\(merchantId)/\(authRequestId)"
+        
+        var requestHeaders = headers
+        requestHeaders.add(name: "X-MERCHANT-ID", value: merchantId)
+        requestHeaders.add(name: "merchantId", value: merchantId)
+        requestHeaders.add(name: "authRequestId", value: authRequestId)
         
         return try await apiHandler.send(
             method: .GET,

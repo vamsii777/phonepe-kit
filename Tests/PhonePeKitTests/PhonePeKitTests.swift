@@ -155,6 +155,14 @@ class PhonePeClientTests: XCTestCase {
         XCTAssertEqual(response.code, "SUCCESS")
     }
     
+    // Fix Tests
+    func testAuthRequestStatus() async throws {
+        let phonePeClient = createClient(saltKey: "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399", environment: .sandbox)
+        let response = try await phonePeClient.subscriptions.authRequestStatus(merchantId: "MID12345", authRequestId: "TX123456789")
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response.code, "SUCCESS")
+    }
+    
     // USE PRODUCTION KEY & SALT
     // Phonepe does not have an uptime test URL.
     func healthStatus() async throws {
