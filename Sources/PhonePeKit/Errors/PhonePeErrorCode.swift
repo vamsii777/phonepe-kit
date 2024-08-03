@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum PhonePeErrorCode: String, Codable {
+public enum PhonePeErrorCode: String, Sendable, Codable {
     case PAYMENT_INITIATED = "PAYMENT_INITIATED"
     case PAYMENT_ERROR = "PAYMENT_ERROR"
     case INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
