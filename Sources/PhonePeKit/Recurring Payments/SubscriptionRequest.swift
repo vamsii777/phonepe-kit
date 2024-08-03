@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Represents a request for creating a subscription.
 public struct SubscriptionRequest: Codable {
     public var merchantId: String
     public var merchantSubscriptionId: String
@@ -20,6 +21,20 @@ public struct SubscriptionRequest: Codable {
     public var mobileNumber: String? // Mandatory for Subscription – PhonePe Intent Flow
     public var deviceContext: DeviceContext?
 
+    /// Initializes a new instance of the `SubscriptionRequest` struct.
+    ///
+    /// - Parameters:
+    ///   - merchantId: The ID of the merchant.
+    ///   - merchantSubscriptionId: The ID of the merchant subscription.
+    ///   - merchantUserId: The ID of the merchant user.
+    ///   - authWorkflowType: The authentication workflow type.
+    ///   - amountType: The type of the amount.
+    ///   - amount: The amount in paise.
+    ///   - frequency: The frequency of the subscription.
+    ///   - recurringCount: The number of recurring payments.
+    ///   - subMerchantId: The ID of the sub-merchant (optional).
+    ///   - mobileNumber: The mobile number (mandatory for subscription with PhonePe Intent Flow) (optional).
+    ///   - deviceContext: The device context (optional).
     public init(merchantId: String,
                 merchantSubscriptionId: String,
                 merchantUserId: String,
@@ -44,6 +59,7 @@ public struct SubscriptionRequest: Codable {
         self.deviceContext = deviceContext
     }
 }
+
 
 public enum AuthWorkflowType: String, Codable {
     case pennyDrop = "PENNY_DROP"
