@@ -98,22 +98,32 @@ struct PhonePeAPIHandler {
                           path: String,
                           query: String = "",
                           body: HTTPClientRequest.Body? = nil,
-                          headers: HTTPHeaders) async throws -> T {
+                          headers: HTTPHeaders,
+                          baseUrl: String? = nil) async throws -> T {
         var _headers: HTTPHeaders = ["Content-Type": "application/json",
                                      "Accept": "application/json"]
         headers.forEach { _headers.replaceOrAdd(name: $0.name, value: $0.value) }
-        
+
         let signature = try await Request.generateSignature(path: path, body: body, saltKey: saltKey, saltIndex: saltIndex)
         _headers.add(name: "X-VERIFY", value: signature)
-        
-        var request = HTTPClientRequest(url: "\(environment.baseUrl)\(path)?\(query)")
+
+        let resolvedBaseUrl = baseUrl ?? environment.baseUrl
+        var request = HTTPClientRequest(url: "\(resolvedBaseUrl)\(path)?\(query)")
         request.headers = _headers
         request.method = method
         request.body = body
         
         let response = try await httpClient.execute(request, timeout: .seconds(60))
         let responseData = try await response.body.collect(upTo: 1024 * 1024 * 100) // 100 MB limit
-        
+
+        guard responseData.readableBytes > 0 else {
+            throw PhonePeError(
+                success: false,
+                code: .EMPTY_RESPONSE,
+                message: "Server returned empty response body (HTTP \(response.status.code))"
+            )
+        }
+
         return try decoder.decode(T.self, from: Data(buffer: responseData))
     }
 }

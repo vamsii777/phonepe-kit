@@ -12,8 +12,8 @@ import AsyncHTTPClient
 
 // Defines the required protocol for Pay routes
 public protocol PayRoutes: PhonePeAPIRoute {
-    func initiatePayment(request: PayRequest) async throws -> PhonePeResponse<PayResponse>
-    func refundPayment(request: RefundRequest) async throws -> PhonePeResponse<RefundResponse>
+    func initiate(request: PayRequest) async throws -> PhonePeResponse<PayResponse>
+    func refund(request: RefundRequest) async throws -> PhonePeResponse<RefundResponse>
 }
 
 // Struct for Pay API routes
@@ -28,7 +28,7 @@ public struct PhonePePayRoutes: PayRoutes {
         self.baseUrl = baseUrl
     }
 
-    public func initiatePayment(request: PayRequest) async throws -> PhonePeResponse<PayResponse> {
+    public func initiate(request: PayRequest) async throws -> PhonePeResponse<PayResponse> {
         let path = "/pg/v1/pay"
 
         let requestBody = try Request.constructRequestBody(request: request)
@@ -41,7 +41,7 @@ public struct PhonePePayRoutes: PayRoutes {
         )
     }
 
-    public func refundPayment(request: RefundRequest) async throws -> PhonePeResponse<RefundResponse> {
+    public func refund(request: RefundRequest) async throws -> PhonePeResponse<RefundResponse> {
         let path = "/pg/v1/refund"
 
         let requestBody = try Request.constructRequestBody(request: request)

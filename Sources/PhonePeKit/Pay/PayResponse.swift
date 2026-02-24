@@ -8,14 +8,16 @@
 import Foundation
 
 public struct PayResponse: Codable {
-    let instrumentResponse: InstrumentResponse
-    struct InstrumentResponse: Codable {
-        let type: String
-        let redirectInfo: RedirectInfo
+    public let instrumentResponse: InstrumentResponse?
+    public struct InstrumentResponse: Codable {
+        public let type: String
+        public let redirectInfo: RedirectInfo?   // PAY_PAGE, NET_BANKING, CARD
+        public let intentUrl: String?            // UPI_INTENT deep-link
+        public let qrData: String?               // UPI_INTENT QR string
 
-        struct RedirectInfo: Codable {
-            let url: String
-            let method: String
+        public struct RedirectInfo: Codable {
+            public let url: String
+            public let method: String
         }
     }
 }

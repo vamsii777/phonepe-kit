@@ -18,13 +18,13 @@ public final class PhonePeClient {
     public var payments: PhonePePayRoutes
     
     /// The routes for checking payment status.
-    public var checkstatus: PhonePeCheckStatusRoutes
+    public var status: PhonePeStatusRoutes
     
-    /// The routes for other PhonePe operations.
-    public var other: PhonePeOtherRoutes
-    
-    /// The routes for performing health checks.
-    public var healthcheck: PhonePeHealthCheckRoutes
+    /// The routes for validating VPA and similar.
+    public var validate: PhonePeValidateRoutes
+
+    /// The routes for fetching payment options.
+    public var options: PhonePeOptionsRoutes
     
     var handler: PhonePeAPIHandler
 
@@ -38,8 +38,8 @@ public final class PhonePeClient {
         handler = PhonePeAPIHandler(httpClient: httpClient, saltKey: saltKey, saltIndex: saltIndex, environment: environment)
         subscriptions = PhonePeSubscriptionRoutes(apiHandler: handler, baseUrl: environment.baseUrl)
         payments = PhonePePayRoutes(apiHandler: handler, baseUrl: environment.baseUrl)
-        checkstatus = PhonePeCheckStatusRoutes(apiHandler: handler, baseUrl: environment.baseUrl)
-        healthcheck = PhonePeHealthCheckRoutes(apiHandler: handler, baseUrl: environment.healthbaseUrl)
-        other = PhonePeOtherRoutes(apiHandler: handler, baseUrl: environment.baseUrl)
+        status = PhonePeStatusRoutes(apiHandler: handler, baseUrl: environment.baseUrl, healthBaseUrl: environment.healthbaseUrl)
+        validate = PhonePeValidateRoutes(apiHandler: handler, baseUrl: environment.baseUrl)
+        options = PhonePeOptionsRoutes(apiHandler: handler, baseUrl: environment.baseUrl)
     }
 }

@@ -17,8 +17,6 @@ let package = Package(
         .target(name: "PhonePeKit", dependencies: [
             .product(name: "AsyncHTTPClient", package: "async-http-client"),
             .product(name: "Crypto", package: "swift-crypto"),
-        ], swiftSettings: [
-            .unsafeFlags(["-Xfrontend", "-warn-concurrency"])
         ]),
         .testTarget(name: "PhonePeKitTests", dependencies: [
             .target(name: "PhonePeKit")

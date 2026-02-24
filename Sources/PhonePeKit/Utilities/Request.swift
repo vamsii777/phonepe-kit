@@ -59,8 +59,7 @@ class Request {
             bodyData.append(contentsOf: buffer.readableBytesView)
         }
         guard let bodyString = String(data: bodyData, encoding: .utf8) else {
-            // TODO: Use PhonePeError instead of SubscriptionError
-            throw SubscriptionError.bodyExtractionFailed
+            throw PhonePeError(success: false, code: .BAD_REQUEST, message: "Failed to decode request body as UTF-8")
         }
         return bodyString
     }
