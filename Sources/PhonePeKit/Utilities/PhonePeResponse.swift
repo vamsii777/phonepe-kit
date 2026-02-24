@@ -7,24 +7,34 @@
 
 import Foundation
 
-/// Represents a response from the PhonePe API.
+/// A generic wrapper for PhonePe v1 API responses.
 ///
-/// The `PhonePeResponse` struct is a generic type that encapsulates the success status, error code, error message, and data returned by the PhonePe API.
-/// It conforms to the `Codable` protocol to support encoding and decoding from/to JSON.
+/// Every v1 API call returns a JSON envelope of the form:
+/// ```json
+/// { "success": true, "code": "PAYMENT_INITIATED", "message": "...", "data": { ... } }
+/// ```
+///
+/// `PhonePeResponse<T>` decodes this envelope and surfaces:
+/// - ``success`` — whether the request succeeded.
+/// - ``code`` — a strongly typed ``PhonePeErrorCode`` (unknown codes are captured in `.unknown(_:)`).
+/// - ``message`` — optional human-readable detail.
+/// - ``data`` — the payload decoded as `T`, or `nil` when the shape doesn't match.
 public struct PhonePeResponse<T: Codable>: Codable {
-    /// Indicates whether the API request was successful or not.
+    /// Whether the API request succeeded.
     public let success: Bool
 
-    /// The error code returned by the API in case of failure.
-    public let code: String
+    /// The response code returned by PhonePe, decoded as a ``PhonePeErrorCode``.
+    ///
+    /// Codes not yet listed in the enum are captured as ``PhonePeErrorCode/unknown(_:)``
+    /// so that future additions never break decoding.
+    public let code: PhonePeErrorCode
 
-    /// The error message returned by the API in case of failure.
+    /// Optional human-readable message accompanying the response.
     public let message: String?
 
-    /// The data returned by the API in case of success.
+    /// The response payload. `nil` when the shape doesn't match `T` or when absent.
     public let data: T?
 
-    /// The coding keys used for encoding and decoding the struct.
     enum CodingKeys: String, CodingKey {
         case success, code, message, data
     }
@@ -32,10 +42,18 @@ public struct PhonePeResponse<T: Codable>: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         success = try container.decode(Bool.self, forKey: .success)
-        code = try container.decode(String.self, forKey: .code)
+        code = try container.decode(PhonePeErrorCode.self, forKey: .code)
         message = try container.decodeIfPresent(String.self, forKey: .message)
         // Use try? so that error responses with a mismatched `data` shape
         // (e.g. missing required fields) yield nil instead of throwing.
         data = try? container.decodeIfPresent(T.self, forKey: .data)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(success, forKey: .success)
+        try container.encode(code, forKey: .code)
+        try container.encodeIfPresent(message, forKey: .message)
+        try container.encodeIfPresent(data, forKey: .data)
     }
 }

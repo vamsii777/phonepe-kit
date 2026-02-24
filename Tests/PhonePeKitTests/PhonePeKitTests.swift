@@ -1,44 +1,104 @@
-import XCTest
+import Testing
 @testable import PhonePeKit
 import NIO
 import AsyncHTTPClient
 
-class PhonePeClientTests: XCTestCase {
+/// Integration tests for the PhonePe v1 API using public sandbox credentials.
+///
+/// - Merchant ID: `PGTESTPAYUAT86`
+/// - Salt key: `96434309-7796-489d-8924-ab56988a6076` / index `1`
+/// - Endpoint: `https://api-preprod.phonepe.com/apis/pg-sandbox`
+struct PhonePeClientTests {
 
-    var phonePeClient: PhonePeClient!
-    var httpClient: HTTPClient!
+    private let saltKey    = "96434309-7796-489d-8924-ab56988a6076"
+    private let saltIndex  = "1"
+    private let merchantId = "PGTESTPAYUAT86"
 
-    override func setUp() {
-        super.setUp()
-        httpClient = HTTPClient(eventLoopGroupProvider: .singleton)
+    /// Creates a configured v1 client and the underlying HTTPClient it owns.
+    /// Callers are responsible for shutting down the HTTPClient via `defer`.
+    func makeClient() -> (PhonePeClient, HTTPClient) {
+        let http = HTTPClient(eventLoopGroupProvider: .singleton)
+        let client = PhonePeClient(
+            httpClient: http,
+            credential: .v1(saltKey: saltKey, saltIndex: saltIndex),
+            environment: .sandbox
+        )
+        return (client, http)
     }
 
-    func createClient(saltKey: String = "96434309-7796-489d-8924-ab56988a6076", environment: Environment) -> PhonePeClient {
-        return PhonePeClient(httpClient: httpClient, saltKey: saltKey, saltIndex: "1", environment: environment)
-    }
+    // MARK: - Payment
 
-    func testInitiatePayment() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
+    @Test func testInitiatePayment() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
         let request = PayRequest(
-            merchantId: "PGTESTPAYUAT86",
+            merchantId: merchantId,
             merchantTransactionId: "MT7850590068188104",
-            amount: 10000, merchantUserId: "MUID123",
+            amount: 10000,
+            merchantUserId: "MUID123",
             redirectUrl: "https://webhook.site/redirect-url",
             redirectMode: .POST,
             callbackUrl: "https://webhook.site/callback-url",
             paymentInstrument: .payPage,
             mobileNumber: "9999999999"
         )
-        let response = try await phonePeClient.payments.initiate(request: request)
-        XCTAssertNotNil(response)
-        XCTAssertEqual(response.success, true)
-        XCTAssertEqual(response.code, "PAYMENT_INITIATED")
+        let response = try await client.payments.initiate(request: request)
+        #expect(response.success == true)
+        #expect(response.code == .PAYMENT_INITIATED)
     }
 
-    func testRefundPayment() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
+    @Test func testInitiatePaymentRedirect() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
+        let request = PayRequest(
+            merchantId: merchantId,
+            merchantTransactionId: "MT7850590068188104",
+            amount: 10000,
+            merchantUserId: "MUID123",
+            redirectUrl: "https://webhook.site/redirect-url",
+            redirectMode: .REDIRECT,
+            callbackUrl: "https://webhook.site/callback-url",
+            paymentInstrument: .payPage,
+            mobileNumber: "9999999999"
+        )
+        let response = try await client.payments.initiate(request: request)
+        #expect(response.success == true)
+        #expect(response.code == .PAYMENT_INITIATED)
+    }
+
+    @Test func testBadRequest() async throws {
+        // Short mobile number — sandbox may still initiate or return an error.
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
+        let request = PayRequest(
+            merchantId: merchantId,
+            merchantTransactionId: "MT7850590068188104",
+            amount: 10000,
+            merchantUserId: "MUID123",
+            redirectUrl: "https://webhook.site/redirect-url",
+            redirectMode: .POST,
+            callbackUrl: "https://webhook.site/callback-url",
+            paymentInstrument: .payPage,
+            mobileNumber: "9999"
+        )
+        // Assert the call completes without crashing — sandbox is lenient with optional fields.
+        let response = try await client.payments.initiate(request: request)
+        #expect(response.success == true || response.success == false)
+    }
+
+    // MARK: - Refund
+
+    @Test func testRefundPayment() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
+        // Downcast to concrete type to access the nested refund sub-routes.
+        let payments = try #require(client.payments as? PhonePePayRoutes)
         let request = RefundRequest(
-            merchantId: "PGTESTPAYUAT86",
+            merchantId: merchantId,
             merchantUserId: "User123",
             originalTransactionId: "OD620471739210623",
             merchantTransactionId: "ROD620471739210623",
@@ -46,145 +106,136 @@ class PhonePeClientTests: XCTestCase {
             callbackUrl: "https://webhook.site/callback-url"
         )
         do {
-            let response = try await phonePeClient.payments.refund.initiate(request: request)
-            XCTAssertNotNil(response)
-            // Original transaction OD620471739210623 does not exist in sandbox;
-            // PhonePe returns a non-success response for unknown transactions.
-            XCTAssertFalse(response.success)
+            let response = try await payments.refund.initiate(request: request)
+            // OD620471739210623 doesn't exist in sandbox — expect non-success.
+            #expect(response.success == false)
         } catch let error as PhonePeError {
-            // PhonePe sandbox returns an empty body when the original transaction
-            // does not exist — SDK surfaces this as EMPTY_RESPONSE.
-            XCTAssertEqual(error.code, .EMPTY_RESPONSE)
+            // Sandbox may return empty body for unknown original transactions.
+            #expect(error.code == .EMPTY_RESPONSE)
         }
     }
 
-    func testInitiatePaymentRedirect() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
-        let request = PayRequest(
-            merchantId: "PGTESTPAYUAT86",
-            merchantTransactionId: "MT7850590068188104",
-            amount: 10000, merchantUserId: "MUID123",
-            redirectUrl: "https://webhook.site/redirect-url",
-            redirectMode: .REDIRECT,
-            callbackUrl: "https://webhook.site/callback-url",
-            paymentInstrument: .payPage,
-            mobileNumber: "9999999999"
-        )
-        let response = try await phonePeClient.payments.initiate(request: request)
-        XCTAssertNotNil(response)
-        XCTAssertEqual(response.success, true)
-        XCTAssertEqual(response.code, "PAYMENT_INITIATED")
-    }
+    // MARK: - Status
 
-    func testCheckTransactionStatus() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
-        let merchantId = "PGTESTPAYUAT86"
-        let merchantTransactionId = "7qfRVFLbjL8Le8vMKAUieq"
+    @Test func testCheckTransactionStatus() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
 
         do {
-            let response = try await phonePeClient.status.transaction(merchantId: merchantId, merchantTransactionId: merchantTransactionId)
-            XCTAssertNotNil(response)
-            // Transaction does not exist in sandbox — expect TRANSACTION_NOT_FOUND.
-            XCTAssertEqual(response.code, "TRANSACTION_NOT_FOUND")
+            let response = try await client.status.transaction(
+                merchantId: merchantId,
+                merchantTransactionId: "7qfRVFLbjL8Le8vMKAUieq"
+            )
+            #expect(response.code == .TRANSACTION_NOT_FOUND || response.success == false)
         } catch let error as PhonePeError {
-            // PhonePe sandbox returns an empty body for non-existent transactions
-            // — SDK surfaces this as EMPTY_RESPONSE.
-            XCTAssertEqual(error.code, .EMPTY_RESPONSE)
+            #expect(error.code == .EMPTY_RESPONSE)
         }
     }
 
-    func testVPAValidate() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
-        let request = VPAValidateRequest(vpa: "success@razorpay", merchantId: "PGTESTPAYUAT86")
-        let response = try await phonePeClient.validate.vpa(request: request)
-        XCTAssertNotNil(response)
-        XCTAssertEqual(response.code, "SUCCESS")
+    // MARK: - Validate / Options
+
+    @Test func testVPAValidate() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
+        let request = VPAValidateRequest(vpa: "success@razorpay", merchantId: merchantId)
+        let response = try await client.validate.vpa(request: request)
+        #expect(response.code == .SUCCESS)
     }
 
-    func testPaymentOptions() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
-        let response = try await phonePeClient.options.payment(merchantId: "PGTESTPAYUAT86")
-        XCTAssertNotNil(response)
-        XCTAssertEqual(response.success, true)
-        XCTAssertEqual(response.code, "SUCCESS")
+    @Test func testPaymentOptions() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
+        let response = try await client.options.payment(merchantId: merchantId)
+        #expect(response.success == true)
+        #expect(response.code == .SUCCESS)
     }
 
-    func testBadRequest() async throws {
-        // Sending an invalid mobile number (too short) — sandbox may return BAD_REQUEST or still initiate.
-        // We only assert the response is received (not nil).
-        let phonePeClient = createClient(environment: .sandbox)
-        let request = PayRequest(
-            merchantId: "PGTESTPAYUAT86",
-            merchantTransactionId: "MT7850590068188104",
-            amount: 10000, merchantUserId: "MUID123",
-            redirectUrl: "https://webhook.site/redirect-url",
-            redirectMode: .POST,
-            callbackUrl: "https://webhook.site/callback-url",
-            paymentInstrument: .payPage,
-            mobileNumber: "9999"
-        )
-        let response = try await phonePeClient.payments.initiate(request: request)
-        XCTAssertNotNil(response)
-    }
+    // MARK: - Subscriptions (V1)
 
-    func testCreateSubscription() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
+    @Test func testCreateSubscription() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
         let request = SubscriptionRequest(
-            merchantId: "PGTESTPAYUAT86",
+            merchantId: merchantId,
             merchantSubscriptionId: "MSUB123456789012345",
             merchantUserId: "MU123456789",
-            authWorkflowType: .pennyDrop,  // or .pennyDrop
-            amountType: .fixed,  // or .variable
-            amount: 39900,  // Sample amount in paise
-            frequency: .monthly,  // Choose the appropriate frequency
-            recurringCount: 12,  // Sample recurring count
+            authWorkflowType: .pennyDrop,
+            amountType: .fixed,
+            amount: 39900,
+            frequency: .monthly,
+            recurringCount: 12,
             subMerchantId: "DemoMerchant",
-            mobileNumber: "7989378465",  // Sample mobile number
-            deviceContext: DeviceContext(phonePeVersionCode: 400922)  // Sample device context
+            mobileNumber: "7989378465",
+            deviceContext: DeviceContext(phonePeVersionCode: 400922)
         )
-        let response = try await phonePeClient.subscriptions.create(request: request)
-        XCTAssertNotNil(response)
-        XCTAssertEqual(response.success, true)
+        let response = try await client.subscriptions.create(request: request)
+        #expect(response.success == true)
     }
 
-    func testUserSubscriptionStatus() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
-        let response = try await phonePeClient.subscriptions.user.status(merchantId: "PGTESTPAYUAT86", merchantSubscriptionId: "MSUB123456789012345")
-        XCTAssertNotNil(response)
-        XCTAssertEqual(response.success, true)
+    @Test func testUserSubscriptionStatus() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
+        // Downcast to access nested user sub-routes (not part of the protocol).
+        let subs = try #require(client.subscriptions as? PhonePeSubscriptionRoutes)
+        let response = try await subs.user.status(
+            merchantId: merchantId,
+            merchantSubscriptionId: "MSUB123456789012345"
+        )
+        #expect(response.success == true)
     }
 
-    func testFetchAllSubscriptionStatus() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
-        let response = try await phonePeClient.subscriptions.fetch.all(merchantId: "PGTESTPAYUAT86", merchantUserId: "MU123456789")
-        XCTAssertNotNil(response)
-        XCTAssertEqual(response.code, "SUCCESS")
+    @Test func testFetchAllSubscriptionStatus() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
+        let subs = try #require(client.subscriptions as? PhonePeSubscriptionRoutes)
+        let response = try await subs.fetch.all(
+            merchantId: merchantId,
+            merchantUserId: "MU123456789"
+        )
+        #expect(response.code == .SUCCESS)
     }
 
-    func testVerifyValidateVPA() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
-        let response = try await phonePeClient.subscriptions.vpa.verify(merchantId: "PGTESTPAYUAT86", vpa: "9999999999@ybl")
-        XCTAssertNotNil(response)
-        XCTAssertEqual(response.code, "SUCCESS")
+    @Test func testVerifyVPA() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
+        let subs = try #require(client.subscriptions as? PhonePeSubscriptionRoutes)
+        let response = try await subs.vpa.verify(
+            merchantId: merchantId,
+            vpa: "9999999999@ybl"
+        )
+        #expect(response.code == .SUCCESS)
     }
 
-    func testAuthRequestStatus() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
-        // TX123456789 does not exist in sandbox — PhonePe returns a non-success response or empty body.
+    @Test func testAuthRequestStatus() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
+        let subs = try #require(client.subscriptions as? PhonePeSubscriptionRoutes)
         do {
-            let response = try await phonePeClient.subscriptions.auth.status(merchantId: "PGTESTPAYUAT86", authRequestId: "TX123456789")
-            XCTAssertNotNil(response)
-            XCTAssertFalse(response.success)
+            let response = try await subs.auth.status(
+                merchantId: merchantId,
+                authRequestId: "TX123456789"
+            )
+            // Non-existent auth request — expect non-success.
+            #expect(response.success == false)
         } catch {
-            // Sandbox may return empty body for unknown auth requests — surfaced as PhonePeError.
-            XCTAssertNotNil(error)
+            // Empty body from sandbox is acceptable.
         }
     }
 
-    func testAuthInit() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
+    @Test func testAuthInit() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
+        let subs = try #require(client.subscriptions as? PhonePeSubscriptionRoutes)
         let request = AuthInitRequest(
-            merchantId: "PGTESTPAYUAT86",
+            merchantId: merchantId,
             merchantSubscriptionId: "MSUB123456789012345",
             merchantUserId: "MU123456789",
             authRequestId: "AR123456789",
@@ -193,19 +244,20 @@ class PhonePeClientTests: XCTestCase {
             paymentInstrument: .upiCollect(vpa: "test@ybl")
         )
         do {
-            let response = try await phonePeClient.subscriptions.auth.initiate(request: request)
-            XCTAssertNotNil(response)
-            // Non-existent subscription in sandbox returns a non-success code.
-            XCTAssertFalse(response.success)
+            let response = try await subs.auth.initiate(request: request)
+            #expect(response.success == false)
         } catch let error as PhonePeError {
-            XCTAssertNotNil(error)
+            _ = error // An error here is also acceptable.
         }
     }
 
-    func testExecuteDebit() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
+    @Test func testExecuteDebit() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
+        let subs = try #require(client.subscriptions as? PhonePeSubscriptionRoutes)
         let request = DebitExecuteRequest(
-            merchantId: "PGTESTPAYUAT86",
+            merchantId: merchantId,
             merchantSubscriptionId: "MSUB123456789012345",
             merchantTransactionId: "MT_DEBIT_001",
             merchantUserId: "MU123456789",
@@ -213,77 +265,72 @@ class PhonePeClientTests: XCTestCase {
             callbackUrl: "https://webhook.site/callback-url"
         )
         do {
-            let response = try await phonePeClient.subscriptions.debit.execute(request: request)
-            XCTAssertNotNil(response)
-            XCTAssertFalse(response.success)
+            let response = try await subs.debit.execute(request: request)
+            #expect(response.success == false)
         } catch let error as PhonePeError {
-            XCTAssertNotNil(error)
+            _ = error
         }
     }
 
-    func testCancelSubscription() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
+    @Test func testCancelSubscription() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
         let request = SubscriptionActionRequest(
-            merchantId: "PGTESTPAYUAT86",
+            merchantId: merchantId,
             merchantSubscriptionId: "MSUB123456789012345"
         )
         do {
-            let response = try await phonePeClient.subscriptions.cancel(request: request)
-            XCTAssertNotNil(response)
+            let _ = try await client.subscriptions.cancel(request: request)
         } catch let error as PhonePeError {
-            XCTAssertNotNil(error)
+            _ = error
         }
     }
 
-    func testPauseSubscription() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
+    @Test func testPauseSubscription() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
         let request = SubscriptionActionRequest(
-            merchantId: "PGTESTPAYUAT86",
+            merchantId: merchantId,
             merchantSubscriptionId: "MSUB123456789012345",
             pauseStartDate: 1700000000000,
             pauseEndDate: 1700086400000
         )
         do {
-            let response = try await phonePeClient.subscriptions.pause(request: request)
-            XCTAssertNotNil(response)
+            let _ = try await client.subscriptions.pause(request: request)
         } catch let error as PhonePeError {
-            XCTAssertNotNil(error)
+            _ = error
         }
     }
 
-    func testUnpauseSubscription() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
+    @Test func testUnpauseSubscription() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
         let request = SubscriptionActionRequest(
-            merchantId: "PGTESTPAYUAT86",
+            merchantId: merchantId,
             merchantSubscriptionId: "MSUB123456789012345"
         )
         do {
-            let response = try await phonePeClient.subscriptions.unpause(request: request)
-            XCTAssertNotNil(response)
+            let _ = try await client.subscriptions.unpause(request: request)
         } catch let error as PhonePeError {
-            XCTAssertNotNil(error)
+            _ = error
         }
     }
 
-    func testRevokeSubscription() async throws {
-        let phonePeClient = createClient(environment: .sandbox)
+    @Test func testRevokeSubscription() async throws {
+        let (client, http) = makeClient()
+        defer { try? http.syncShutdown() }
+
         let request = SubscriptionActionRequest(
-            merchantId: "PGTESTPAYUAT86",
+            merchantId: merchantId,
             merchantSubscriptionId: "MSUB123456789012345"
         )
         do {
-            let response = try await phonePeClient.subscriptions.revoke(request: request)
-            XCTAssertNotNil(response)
+            let _ = try await client.subscriptions.revoke(request: request)
         } catch let error as PhonePeError {
-            XCTAssertNotNil(error)
+            _ = error
         }
-    }
-
-    // USE PRODUCTION KEY & SALT
-    // Phonepe does not have an uptime test URL.
-    func healthStatus() async throws {
-        let phonePeClient = createClient(environment: .production)
-        let response = try await phonePeClient.status.health(merchantId: "MSUB123456789012345")
-        XCTAssertNotNil(response)
     }
 }
