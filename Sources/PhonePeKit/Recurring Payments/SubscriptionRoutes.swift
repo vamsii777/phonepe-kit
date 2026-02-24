@@ -216,6 +216,19 @@ public struct PhonePeSubscriptionRoutes: SubscriptionRoutes {
             self.baseUrl = baseUrl
         }
 
+        /// Notifies the bank 24–48 hours before a debit. Call this before `execute`.
+        /// If `autoDebit` is `true` in the request, PhonePe will auto-execute after the window.
+        public func initiate(request: DebitInitRequest) async throws -> PhonePeResponse<DebitInitResponse> {
+            let path = "/v3/recurring/debit/init"
+            let requestBody = try Request.constructRequestBody(request: request)
+            return try await apiHandler.send(
+                method: .POST,
+                path: path,
+                body: .data(requestBody),
+                headers: [:]
+            )
+        }
+
         public func execute(request: DebitExecuteRequest) async throws -> PhonePeResponse<DebitExecuteResponse> {
             let path = "/v3/recurring/debit/execute"
             let requestBody = try Request.constructRequestBody(request: request)

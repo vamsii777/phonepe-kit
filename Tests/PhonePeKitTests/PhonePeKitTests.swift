@@ -46,7 +46,7 @@ class PhonePeClientTests: XCTestCase {
             callbackUrl: "https://webhook.site/callback-url"
         )
         do {
-            let response = try await phonePeClient.payments.refund(request: request)
+            let response = try await phonePeClient.payments.refund.initiate(request: request)
             XCTAssertNotNil(response)
             // Original transaction OD620471739210623 does not exist in sandbox;
             // PhonePe returns a non-success response for unknown transactions.

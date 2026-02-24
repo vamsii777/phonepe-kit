@@ -76,6 +76,7 @@ public enum Frequency: String, Codable {
     case weekly = "WEEKLY"
     case fortnightly = "FORTNIGHTLY"
     case monthly = "MONTHLY"
+    case bimonthly = "BIMONTHLY"
     case quarterly = "QUARTERLY"
     case halfyearly = "HALFYEARLY"
     case yearly = "YEARLY"

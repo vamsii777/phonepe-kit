@@ -7,36 +7,32 @@
 
 import Foundation
 
-/// Represents the response for the authentication request status.
 public struct AuthRequestStatusResponse: Codable {
-    var merchantId: String
-    var authRequestId: String
-    var transactionDetails: TransactionDetails?
-    var subscriptionDetails: SubscriptionDetails
+    public let merchantId: String
+    public let authRequestId: String
+    public let transactionDetails: TransactionDetails?
+    public let subscriptionDetails: SubscriptionDetails
 
-    /// Represents the details of a transaction.
-    struct TransactionDetails: Codable {
-        var providerReferenceId: String?
-        var amount: Int?
-        var state: String?
-        var payResponseCode: String?
-        var payResponseCodeDescription: String?
-        var paymentModes: [PaymentMode]?
+    public struct TransactionDetails: Codable {
+        public let providerReferenceId: String?
+        public let amount: Int?
+        public let state: String?
+        public let payResponseCode: String?
+        public let payResponseCodeDescription: String?
+        public let paymentModes: [PaymentMode]?
     }
-    
-    /// Represents the details of a subscription.
-    struct SubscriptionDetails: Codable {
-        var subscriptionId: String
-        var state: String
+
+    public struct SubscriptionDetails: Codable {
+        public let subscriptionId: String
+        public let state: String
     }
-    
-    /// Represents a payment mode.
-    struct PaymentMode: Codable {
-        var mode: String
-        var amount: Int
-        var utr: String?
-        var ifsc: String?
-        var maskedAccountNumber: String?
-        var umn: String?
+
+    public struct PaymentMode: Codable {
+        public let mode: String
+        public let amount: Int
+        public let utr: String?
+        public let ifsc: String?
+        public let maskedAccountNumber: String?
+        public let umn: String?
     }
 }

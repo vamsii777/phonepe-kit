@@ -8,10 +8,24 @@
 import Foundation
 
 public struct RefundRequest: Codable {
-    let merchantId: String
-    let merchantUserId: String
-    let originalTransactionId: String
-    let merchantTransactionId: String
-    let amount: Int64
-    let callbackUrl: String
+    public let merchantId: String
+    public let merchantUserId: String
+    public let originalTransactionId: String
+    public let merchantTransactionId: String
+    public let amount: Int64
+    public let callbackUrl: String
+
+    public init(merchantId: String,
+                merchantUserId: String,
+                originalTransactionId: String,
+                merchantTransactionId: String,
+                amount: Int64,
+                callbackUrl: String) {
+        self.merchantId = merchantId
+        self.merchantUserId = merchantUserId
+        self.originalTransactionId = originalTransactionId
+        self.merchantTransactionId = merchantTransactionId
+        self.amount = amount
+        self.callbackUrl = callbackUrl
+    }
 }

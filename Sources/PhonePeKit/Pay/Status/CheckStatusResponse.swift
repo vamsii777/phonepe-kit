@@ -8,27 +8,25 @@
 import Foundation
 
 public struct CheckStatusResponse: Codable {
-    let merchantId: String?
-    let merchantTransactionId: String
-    let transactionId: String?
-    let amount: Int64
-    let state: String
-    let responseCode: String
-    let responseCodeDescription: String?
-    let paymentInstrument: CheckStatusPaymentInstrumentType?
-    
-    struct CheckStatusPaymentInstrumentType: Codable {
-        let type: String?
-        let cardType: String?
-        let pgTransactionId: String?
-        let bankTransactionId: String?
-        let pgAuthorizationCode: String?
-        let arn: String?
-        let bankId: String?
-        let pgServiceTransactionId: String?
-        let brn: String?
-        let utr: String?
+    public let merchantId: String?
+    public let merchantTransactionId: String
+    public let transactionId: String?
+    public let amount: Int64
+    public let state: String
+    public let responseCode: String
+    public let responseCodeDescription: String?
+    public let paymentInstrument: PaymentInstrumentDetails?
+
+    public struct PaymentInstrumentDetails: Codable {
+        public let type: String?
+        public let cardType: String?
+        public let pgTransactionId: String?
+        public let bankTransactionId: String?
+        public let pgAuthorizationCode: String?
+        public let arn: String?
+        public let bankId: String?
+        public let pgServiceTransactionId: String?
+        public let brn: String?
+        public let utr: String?
     }
 }
-
-

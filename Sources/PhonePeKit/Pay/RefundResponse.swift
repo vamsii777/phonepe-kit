@@ -8,10 +8,10 @@
 import Foundation
 
 public struct RefundResponse: Codable {
-    let merchantId: String
-    let merchantTransactionId: String
-    let transactionId: String
-    let amount: Int64
-    let state: String
-    let responseCode: String
+    public let merchantId: String
+    public let merchantTransactionId: String
+    public let transactionId: String
+    public let amount: Int64
+    public let state: String
+    public let responseCode: String
 }

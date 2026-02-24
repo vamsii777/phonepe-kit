@@ -8,23 +8,39 @@
 import Foundation
 
 public struct PayRequest: Codable {
-    let merchantId: String
-    let merchantTransactionId: String
-    let amount: Int64 // LONG type in Swift is represented as Int64
-    let merchantUserId: String
-    let redirectUrl: String
-    let redirectMode: RedirectMode
-    let callbackUrl: String
-    let paymentInstrument: PaymentInstrument
-    let mobileNumber: String? // Optional as it's not mandatory
+    public let merchantId: String
+    public let merchantTransactionId: String
+    public let amount: Int64
+    public let merchantUserId: String
+    public let redirectUrl: String
+    public let redirectMode: RedirectMode
+    public let callbackUrl: String
+    public let paymentInstrument: PaymentInstrument
+    public let mobileNumber: String?
 
-    enum CodingKeys: String, CodingKey {
-        case merchantId, merchantTransactionId, amount, merchantUserId, redirectUrl, redirectMode, callbackUrl, paymentInstrument, mobileNumber
-    }
-
-    enum RedirectMode: String, Codable {
+    public enum RedirectMode: String, Codable {
         case REDIRECT
         case POST
+    }
+
+    public init(merchantId: String,
+                merchantTransactionId: String,
+                amount: Int64,
+                merchantUserId: String,
+                redirectUrl: String,
+                redirectMode: RedirectMode,
+                callbackUrl: String,
+                paymentInstrument: PaymentInstrument,
+                mobileNumber: String? = nil) {
+        self.merchantId = merchantId
+        self.merchantTransactionId = merchantTransactionId
+        self.amount = amount
+        self.merchantUserId = merchantUserId
+        self.redirectUrl = redirectUrl
+        self.redirectMode = redirectMode
+        self.callbackUrl = callbackUrl
+        self.paymentInstrument = paymentInstrument
+        self.mobileNumber = mobileNumber
     }
 
     public enum PaymentInstrument: Codable {

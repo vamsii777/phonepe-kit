@@ -7,9 +7,9 @@
 import Foundation
 
 public struct SubscriptionResponse: Codable {
-    var subscriptionId: String
-    var state: String
-    var validUpto: String
-    var isSupportedApp: Bool
-    var isSupportedUser: Bool
+    public let subscriptionId: String
+    public let state: String
+    public let validUpto: String
+    public let isSupportedApp: Bool
+    public let isSupportedUser: Bool
 }

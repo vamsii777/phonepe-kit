@@ -8,38 +8,33 @@
 import Foundation
 
 public struct PaymentOptionsResponse: Codable {
-    var upiCollect: PaymentOption?
-    var intent: PaymentOption?
-    var cards: PaymentOption?
-    var netBanking: NetBankingOption?
-    
-    enum CodingKeys: String, CodingKey {
-        case upiCollect, intent, cards, netBanking
+    public let upiCollect: PaymentOption?
+    public let intent: PaymentOption?
+    public let cards: PaymentOption?
+    public let netBanking: NetBankingOption?
+
+    public struct PaymentOption: Codable {
+        public let enabled: Bool?
+        public let popularBanks: [Bank]?
+        public let allBanks: [Bank]?
     }
-    
-    
-    struct PaymentOption: Codable {
-        var enabled: Bool?
-        var popularBanks: [Bank]?
-        var allBanks: [Bank]?
+
+    public struct NetBankingOption: Codable {
+        public let enabled: Bool?
+        public let popularBanks: [Bank]?
+        public let allBanks: [Bank]?
     }
-    
-    struct NetBankingOption: Codable {
-        var enabled: Bool?
-        var popularBanks: [Bank]?
-        var allBanks: [Bank]?
+
+    public struct Bank: Codable {
+        public let bankId: String?
+        public let bankName: String?
+        public let bankShortName: String?
+        public let available: BankAvailability?
+        public let accountConstraintSupported: Bool?
+        public let priority: Int?
     }
-    
-    struct Bank: Codable {
-        var bankId: String?
-        var bankName: String?
-        var bankShortName: String?
-        var available: BankAvailability?
-        var accountConstraintSupported: Bool?
-        var priority: Int?
-    }
-    
-    enum BankAvailability: String, Codable {
+
+    public enum BankAvailability: String, Codable {
         case available = "AVAILABLE"
         case unavailable = "UNAVAILABLE"
         case degraded = "DEGRADED"

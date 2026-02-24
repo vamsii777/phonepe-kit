@@ -8,24 +8,20 @@
 import Foundation
 
 public struct HealthStatusResponse: Codable {
-    var overallHealth: OverallHealth?
-    var instruments: [String: InstrumentHealth?]
-    
-    struct InstrumentHealth: Codable {
-        var health: HealthType
-        var downProviderIds: [String: [String]]?
+    public let overallHealth: OverallHealth?
+    public let instruments: [String: InstrumentHealth?]
 
-        enum CodingKeys: String, CodingKey {
-            case health, downProviderIds
-        }
+    public struct InstrumentHealth: Codable {
+        public let health: HealthType
+        public let downProviderIds: [String: [String]]?
     }
-    
-    enum OverallHealth: String, Codable {
+
+    public enum OverallHealth: String, Codable {
         case up = "UP"
         case down = "DOWN"
     }
 
-    enum HealthType: String, Codable {
+    public enum HealthType: String, Codable {
         case up = "UP"
         case down = "DOWN"
     }
