@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main, "feat/**" ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test:
+    name: Swift ${{ matrix.swift }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-15
+            swift: "6.0"
+          - os: macos-14
+            swift: "5.10"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          if [[ "${{ matrix.swift }}" == "6.0" ]]; then
+            sudo xcode-select -s /Applications/Xcode_16.app
+          else
+            sudo xcode-select -s /Applications/Xcode_15.4.app
+          fi
+
+      - name: Build
+        run: swift build -c release
+
+      - name: Test
+        run: swift test
