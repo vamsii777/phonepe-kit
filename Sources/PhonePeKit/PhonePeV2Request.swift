@@ -129,7 +129,21 @@ actor PhonePeV2APIHandler {
             )
         }
 
-        return try decoder.decode(T.self, from: Data(buffer: responseData))
+        let data = Data(buffer: responseData)
+
+        // For non-2xx responses, attempt to surface a structured PhonePeError.
+        if response.status.code < 200 || response.status.code >= 300 {
+            if let apiError = try? decoder.decode(PhonePeError.self, from: data) {
+                throw apiError
+            }
+            throw PhonePeError(
+                success: false,
+                code: .unknown("HTTP_\(response.status.code)"),
+                message: "Request failed with HTTP \(response.status.code)"
+            )
+        }
+
+        return try decoder.decode(T.self, from: data)
     }
 
     // MARK: - Token management
@@ -167,7 +181,21 @@ actor PhonePeV2APIHandler {
             )
         }
 
-        let tokenResponse = try decoder.decode(V2TokenResponse.self, from: Data(buffer: responseData))
+        let tokenData = Data(buffer: responseData)
+
+        // Propagate structured error responses (e.g. 401 Unauthorized) as PhonePeError.
+        if response.status.code < 200 || response.status.code >= 300 {
+            if let apiError = try? decoder.decode(PhonePeError.self, from: tokenData) {
+                throw apiError
+            }
+            throw PhonePeError(
+                success: false,
+                code: .AUTHORIZATION_FAILED,
+                message: "OAuth2 token request failed with HTTP \(response.status.code)"
+            )
+        }
+
+        let tokenResponse = try decoder.decode(V2TokenResponse.self, from: tokenData)
 
         // Prefer the epoch-based `expires_at` field; fall back to duration-based `expires_in`
         // if `expires_at` is absent (defensive for any future API change).

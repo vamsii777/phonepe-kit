@@ -16,18 +16,18 @@ import Foundation
 ///
 /// `PhonePeResponse<T>` decodes this envelope and surfaces:
 /// - ``success`` — whether the request succeeded.
-/// - ``code`` — a strongly typed ``PhonePeErrorCode`` (unknown codes are captured in `.unknown(_:)`).
+/// - ``code`` — a strongly typed ``PhonePeCode`` (unknown codes are captured in `.unknown(_:)`).
 /// - ``message`` — optional human-readable detail.
 /// - ``data`` — the payload decoded as `T`, or `nil` when the shape doesn't match.
 public struct PhonePeResponse<T: Codable>: Codable {
     /// Whether the API request succeeded.
     public let success: Bool
 
-    /// The response code returned by PhonePe, decoded as a ``PhonePeErrorCode``.
+    /// The response code returned by PhonePe, decoded as a ``PhonePeCode``.
     ///
-    /// Codes not yet listed in the enum are captured as ``PhonePeErrorCode/unknown(_:)``
+    /// Codes not yet listed in the enum are captured as ``PhonePeCode/unknown(_:)``
     /// so that future additions never break decoding.
-    public let code: PhonePeErrorCode
+    public let code: PhonePeCode
 
     /// Optional human-readable message accompanying the response.
     public let message: String?
@@ -42,7 +42,7 @@ public struct PhonePeResponse<T: Codable>: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         success = try container.decode(Bool.self, forKey: .success)
-        code = try container.decode(PhonePeErrorCode.self, forKey: .code)
+        code = try container.decode(PhonePeCode.self, forKey: .code)
         message = try container.decodeIfPresent(String.self, forKey: .message)
         // Use try? so that error responses with a mismatched `data` shape
         // (e.g. missing required fields) yield nil instead of throwing.

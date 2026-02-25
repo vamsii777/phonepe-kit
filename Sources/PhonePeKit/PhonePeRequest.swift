@@ -196,6 +196,20 @@ struct PhonePeAPIHandler {
             )
         }
 
-        return try decoder.decode(T.self, from: Data(buffer: responseData))
+        let data = Data(buffer: responseData)
+
+        // For non-2xx responses, surface a structured PhonePeError instead of a raw DecodingError.
+        if response.status.code < 200 || response.status.code >= 300 {
+            if let apiError = try? decoder.decode(PhonePeError.self, from: data) {
+                throw apiError
+            }
+            throw PhonePeError(
+                success: false,
+                code: .unknown("HTTP_\(response.status.code)"),
+                message: "Request failed with HTTP \(response.status.code)"
+            )
+        }
+
+        return try decoder.decode(T.self, from: data)
     }
 }

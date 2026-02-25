@@ -1,5 +1,5 @@
 //
-//  PhonePeErrorCode.swift
+//  PhonePeCode.swift
 //
 //
 //  Created by Vamsi Madduluri on 30/12/23.
@@ -15,7 +15,7 @@ import Foundation
 ///
 /// ## Sources
 /// - [PhonePe Error Codes Reference](https://developer.phonepe.com/payment-gateway/error-codes)
-public enum PhonePeErrorCode: Sendable, Codable, Equatable {
+public enum PhonePeCode: Sendable, Codable, Equatable {
 
     // MARK: - General success / initiation
 
@@ -258,7 +258,7 @@ public enum PhonePeErrorCode: Sendable, Codable, Equatable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let raw = try container.decode(String.self)
-        self = PhonePeErrorCode(rawValue: raw) ?? .unknown(raw)
+        self = PhonePeCode(rawValue: raw) ?? .unknown(raw)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -369,7 +369,7 @@ public enum PhonePeErrorCode: Sendable, Codable, Equatable {
         }
     }
 
-    /// Creates a `PhonePeErrorCode` from its raw string value.
+    /// Creates a `PhonePeCode` from its raw string value.
     ///
     /// Returns `nil` for the ``unknown(_:)`` case (use the `Decodable` initialiser
     /// for resilient decoding that maps unknowns to ``unknown(_:)``).
